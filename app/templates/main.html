@@ -59,6 +59,48 @@
                 </select>
                 <br><br>
 
+                <label for="online_security">Online Security:</label>
+                <select id="online_security" name="online_security" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <br><br>
+
+                <label for="online_backup">Online Backup:</label>
+                <select id="online_backup" name="online_backup" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <br><br>
+
+                <label for="device_protection">Device Protection:</label>
+                <select id="device_protection" name="device_protection" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <br><br>
+
+                <label for="tech_support">Tech Support:</label>
+                <select id="tech_support" name="tech_support" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <br><br>
+
+                <label for="streaming_tv">Streaming TV:</label>
+                <select id="streaming_tv" name="streaming_tv" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <br><br>
+
+                <label for="streaming_movies">Streaming Movies:</label>
+                <select id="streaming_movies" name="streaming_movies" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <br><br>
+
                 <label for="internet_service">Internet Service:</label>
                 <select id="internet_service" name="internet_service" required>
                     <option value="DSL">DSL</option>
@@ -110,6 +152,10 @@
 
                 <button type="submit">Predict</button>
             </form>
+            <div id="prediction-result" class="result">
+                {{ prediction_result | default('') }}
+            </div>
+
         </section>
 
         <!-- Chatbot Page -->
@@ -120,11 +166,18 @@
                 <textarea id="prompt" name="prompt" rows="4" placeholder="Ask your question here..." required></textarea>
                 <button type="submit">Submit</button>
             </form>
-            <div id="chatbot-response" class="result"></div>
+            <div id="chatbot-response" class="result">
+                {{ chatbot_response | default('') }}
+            </div>
         </section>
     </main>
 
     <script>
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const initialPage = "{{ initial_page | default('prediction') }}"; // Passed from backend
+            showPage(initialPage);
+        });
         function showPage(pageId) {
             const pages = document.querySelectorAll('.page');
             pages.forEach(page => page.classList.add('hidden'));

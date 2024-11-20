@@ -90,13 +90,34 @@ form button:hover {
     background-color: #0056b3;
 }
 
-.result {
-    margin-top: 20px;
-    text-align: center;
-    font-weight: bold;
-    color: #007BFF;
-}
-
 .hidden {
     display: none;
 }
+
+.result {
+    margin-top: 20px;
+    padding: 15px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    text-align: center;
+    color: #007BFF;
+    background-color: #e9f5ff;
+    border: 1px solid #007BFF;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Prediction Result Specific Styles */
+#prediction-result {
+    margin-top: 30px;
+}
+
+/* Chatbot Response Specific Styles */
+#chatbot-response {
+    margin-top: 30px;
+    white-space: pre-wrap; /* To preserve line breaks in LLM response */
+    color: #28a745;
+    background-color: #eaf7eb;
+    border-color: #28a745;
+}
+

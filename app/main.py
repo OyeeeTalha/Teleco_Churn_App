@@ -3,6 +3,11 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
+from routes.predict_route import predict_router
+from routes.chatbot_route import chatbot_router
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
 
@@ -19,34 +24,17 @@ class PredictionRequest(BaseModel):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def read_root(request: Request):
+async def read_root(request: Request, initial_page: str = "prediction", prediction_result: str = "", chatbot_response: str = ""):
     """
     Render the main page with navigation options.
     """
-    return templates.TemplateResponse("main.html", {"request": request})
+    return templates.TemplateResponse("main.html", {
+        "request": request,
+        "initial_page": initial_page,
+        "prediction_result": prediction_result,
+        "chatbot_response": chatbot_response
+    })
 
-
-@app.post("/predict", response_class=HTMLResponse)
-async def predict(request: Request, data: str = Form(...)):
-    """
-    Handle model prediction requests.
-    """
-    # Add your prediction logic here
-    prediction = f"Prediction for input '{data}'"
-    return templates.TemplateResponse(
-        "main.html", {"request": request, "prediction_result": prediction}
-    )
-
-
-
-@app.post("/chat", response_class=HTMLResponse)
-async def chat(request: Request, prompt: str = Form(...)):
-    """
-    Handle chatbot prompt requests.
-    """
-    # Add your chatbot logic here
-    response = f"Response to prompt '{prompt}'"
-    return templates.TemplateResponse(
-        "main.html", {"request": request, "chatbot_response": response}
-    )
+app.include_router(predict_router)
+app.include_router(chatbot_router)
 

@@ -1,0 +1,188 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telco Churn Predictor</title>
+    <link rel="stylesheet" href="../static/css/main.css">
+</head>
+<body>
+    <header>
+        <h1>Telco Churn Predictor</h1>
+        <nav>
+            <ul>
+                <li><a href="#" onclick="showPage('prediction')">Model Prediction</a></li>
+                <li><a href="#" onclick="showPage('chatbot')">Chatbot</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Model Prediction Page -->
+        <section id="prediction" class="page">
+            <h2>Telco Customer Churn Prediction</h2>
+            <form action="/predict" method="post">
+                <!-- Categorical Fields (Dropdowns) -->
+                <label for="gender">Gender:</label>
+                <select id="gender" name="gender" required>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                </select>
+                <br><br>
+
+                <label for="partner">Partner:</label>
+                <select id="partner" name="partner" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <br><br>
+
+                <label for="dependents">Dependents:</label>
+                <select id="dependents" name="dependents" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <br><br>
+
+                <label for="phone_service">Phone Service:</label>
+                <select id="phone_service" name="phone_service" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <br><br>
+
+                <label for="multiple_lines">Multiple Lines:</label>
+                <select id="multiple_lines" name="multiple_lines" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="No phone service">No phone service</option>
+                </select>
+                <br><br>
+
+                <label for="online_security">Online Security:</label>
+                <select id="online_security" name="online_security" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <br><br>
+
+                <label for="online_backup">Online Backup:</label>
+                <select id="online_backup" name="online_backup" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <br><br>
+
+                <label for="device_protection">Device Protection:</label>
+                <select id="device_protection" name="device_protection" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <br><br>
+
+                <label for="tech_support">Tech Support:</label>
+                <select id="tech_support" name="tech_support" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <br><br>
+
+                <label for="streaming_tv">Streaming TV:</label>
+                <select id="streaming_tv" name="streaming_tv" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <br><br>
+
+                <label for="streaming_movies">Streaming Movies:</label>
+                <select id="streaming_movies" name="streaming_movies" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <br><br>
+
+                <label for="internet_service">Internet Service:</label>
+                <select id="internet_service" name="internet_service" required>
+                    <option value="DSL">DSL</option>
+                    <option value="Fiber optic">Fiber optic</option>
+                    <option value="No">No</option>
+                </select>
+                <br><br>
+
+                <label for="contract">Contract:</label>
+                <select id="contract" name="contract" required>
+                    <option value="Month-to-month">Month-to-month</option>
+                    <option value="One year">One year</option>
+                    <option value="Two year">Two year</option>
+                </select>
+                <br><br>
+
+                <label for="paperless_billing">Paperless Billing:</label>
+                <select id="paperless_billing" name="paperless_billing" required>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+                <br><br>
+
+                <label for="payment_method">Payment Method:</label>
+                <select id="payment_method" name="payment_method" required>
+                    <option value="Electronic check">Electronic check</option>
+                    <option value="Mailed check">Mailed check</option>
+                    <option value="Bank transfer (automatic)">Bank transfer (automatic)</option>
+                    <option value="Credit card (automatic)">Credit card (automatic)</option>
+                </select>
+                <br><br>
+
+                <!-- Numerical Fields (Inputs) -->
+                <label for="senior_citizen">Senior Citizen (0 or 1):</label>
+                <input type="number" id="senior_citizen" name="senior_citizen" min="0" max="1" required>
+                <br><br>
+
+                <label for="tenure">Tenure (Months):</label>
+                <input type="number" id="tenure" name="tenure" min="0" required>
+                <br><br>
+
+                <label for="monthly_charges">Monthly Charges:</label>
+                <input type="number" id="monthly_charges" name="monthly_charges" step="0.01" min="0" required>
+                <br><br>
+
+                <label for="total_charges">Total Charges:</label>
+                <input type="number" id="total_charges" name="total_charges" step="0.01" min="0" required>
+                <br><br>
+
+                <button type="submit">Predict</button>
+            </form>
+            <div id="prediction-result" class="result">
+                {{ prediction_result | default('') }}
+            </div>
+
+        </section>
+
+        <!-- Chatbot Page -->
+        <section id="chatbot" class="page hidden">
+            <h2>Chatbot</h2>
+            <form id="chatbot-form" method="post" action="/chat">
+                <label for="prompt">Enter your prompt:</label>
+                <textarea id="prompt" name="prompt" rows="4" placeholder="Ask your question here..." required></textarea>
+                <button type="submit">Submit</button>
+            </form>
+            <div id="chatbot-response" class="result">
+                {{ chatbot_response | default('') }}
+            </div>
+        </section>
+    </main>
+
+    <script>
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const initialPage = "{{ initial_page | default('prediction') }}"; // Passed from backend
+            showPage(initialPage);
+        });
+        function showPage(pageId) {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => page.classList.add('hidden'));
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

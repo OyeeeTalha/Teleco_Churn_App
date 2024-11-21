@@ -43,7 +43,7 @@ class RandomForestPredict:
             print(cols)
         model = self.rf_model
         y_pred = model.predict(processed_data.values)
-        prediction = "Churn" if y_pred[0] == 1 else "No Churn"
+        prediction = "The customer is likely to churn." if y_pred[0] == 1 else "The customer is not likely to churn."
         print(prediction)
         return prediction
 

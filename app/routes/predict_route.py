@@ -53,7 +53,7 @@ async def predict(request: Request,
 
     # Example: Add a dummy prediction logic here
     random_forest = RandomForestPredict()
-    prediction = "The Customer is Going to " + random_forest.Predict(user_response)
+    prediction = random_forest.Predict(user_response)
 
     # Return the user data and the prediction
     # return JSONResponse(content={"user_response": user_response, "prediction": prediction})

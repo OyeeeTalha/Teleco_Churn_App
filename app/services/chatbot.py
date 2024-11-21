@@ -1,6 +1,7 @@
 ﻿import os
 import re
 import time
+import asyncio
 
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage,SystemMessage
@@ -91,26 +92,49 @@ class Chatbot:
 
         return final_sql_query
 
-    def __Create_Documents_From_List(self,texts):
+    def __Create_Contextual_Documents_From_List__(self,texts,sql_query):
+        sys_msg = """<sql_query>
+            {WHOLE_DOCUMENT}
+            </sql_query>""".format(WHOLE_DOCUMENT=sql_query)
+        chunk_msg = """Here is the chunk we want you describe reading the user prompt
+            <chunk>
+            {CHUNK_CONTENT}
+            </chunk>
+            Please give a short succinct context to describe this chunk according to the sql query for the purposes of improving search retrieval of the chunk. Answer only with the succinct context and nothing else."""
         documents = []
+
         for i in texts:
+            messages = [
+                SystemMessage(content=sys_msg),
+                HumanMessage(content=chunk_msg.format(CHUNK_CONTENT=i)),
+            ]
+            response = self._llm_model.invoke(messages)
             document = Document(
-                page_content=i,
+                page_content=response.content + i,
                 metadata={"Database": "query result"},
             )
             documents.append(document)
         return documents
 
-    def __RAG_Implementation__(self,userPrompt,texts):
+    # async def __Add_To_Vector_Store__(self,index,embeddings_model,documents,uuids):
+    #     vector_store = PineconeVectorStore(index=index, embedding=embeddings_model)
+    #     await vector_store.add_documents(documents=documents, ids=uuids)
+    #
+    #     # The next line will wait for the above operations to complete.
+    #     print("Documents added successfully!")
+    #     return vector_store
 
-
-
+    def __RAG_Implementation__(self,userPrompt,texts,sql_query):
         embeddings_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-mpnet-base-v2")
 
 
         pc = Pinecone(api_key='pcsk_2vPbjG_EGKrzCoUgTQ84DmFpu3SmWGQuroDCxPXeVwLrhmrVABh1WTBJcm3odatxLDK7h5')
+        # try:
+        #     pc.delete_index('sqlchatbot2')
+        #     time.sleep(2)
+        # except:
+        #     pass
         index_name = "sqlchatbot2"  # change if desired
-
         existing_indexes = [index_info["name"] for index_info in pc.list_indexes()]
 
         if index_name not in existing_indexes:
@@ -124,11 +148,13 @@ class Chatbot:
                 time.sleep(1)
 
         index = pc.Index(index_name)
-        documents = self.__Create_Documents_From_List(texts)
+        documents = self.__Create_Contextual_Documents_From_List__(texts,sql_query)
         uuids = create_uuid4_from_list(texts)
 
-        vector_store = PineconeVectorStore(index=index, embedding=embeddings_model)
+        vector_store =  PineconeVectorStore(index=index, embedding=embeddings_model)
         vector_store.add_documents(documents=documents, ids=uuids)
+
+        print(vector_store.similarity_search('count the users that have no dependents'))
         retriever = vector_store.as_retriever(search_kwargs={'k': 10})
 
 
@@ -138,11 +164,10 @@ class Chatbot:
             "Use the following pieces of retrieved context to answer "
             "the question. . Use three sentences maximum and keep the "
             "answer concise."
-            "do not say that i do not know the context"
+            "if you donot know what you are answering. say i do not know the answer"
             "use the user question and the additional information to generate a response"
-            "the information from the retriever context is the user query about result from an sql database"
-            "Use customer id completely in your responses if available"
-            "make sure to just describe the answer in appropriate way, do not add additional information"
+            "the information from the retriever context is the result of the query generated from user question from an sql database"
+            "make sure to just describe the answer in appropriate way"
             "\n\n"
             "{context}"
         )
@@ -158,20 +183,14 @@ class Chatbot:
         rag_chain = create_retrieval_chain(retriever, question_answer_chain)
 
         response = rag_chain.invoke({"input": userPrompt})
-        pc.delete_index('sqlchatbot2')
         return response["answer"]
 
     def Query_Chatbot(self,userPrompt):
         print('chatbot on work')
-        print(userPrompt)
         sql_query = self.__Get_Sql_query__(userPrompt)
-        print(sql_query)
         sql_response = Query_Database(sql_query)
-        print(sql_response)
         texts = [create_text_from_dict(item) for item in sql_response]
-        print(texts)
-        rag_response = self.__RAG_Implementation__(userPrompt,texts)
-        print(rag_response)
+        rag_response = self.__RAG_Implementation__(userPrompt,texts,sql_query)
         return rag_response
 
 
